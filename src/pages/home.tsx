@@ -25,18 +25,51 @@ interface InfoCardProps {
   }[];
 }
 
+interface fetchResponseProps {
+  success: boolean;
+  locations: InfoCardProps[];
+  wp_total: number;
+  total: number;
+}
+
 export function Home() {
   const [businessUnits, setBusinessUnits] = useState<InfoCardProps[]>([]);
 
-  const fetchBusinessUnits = async (data: dataFetchProps) => {
+  const fetchBusinessUnits = async (): Promise<fetchResponseProps> => {
+    const response = await fetch('https://test-frontend-developer.s3.amazonaws.com/data/locations.json');
+    const responseJson: fetchResponseProps = await response.json();
+    return responseJson;
+  }
+
+  const getResponse = async (data: dataFetchProps) => {
     console.log(data);
-    const response = await fetch('https://test-frontend-developer.s3.amazonaws.com/data/locations.json').then(res => res.json());
-    console.log(response);
-    if (response.success !== true) {
-      alert('Erro ao buscar unidades');
+    if (data.period === '') {
+      setBusinessUnits([])
       return
     }
-    setBusinessUnits(response.locations);
+    if (data.showAlways) {
+      const response = await fetchBusinessUnits();
+      if (response.success !== true) {
+        alert('Erro ao buscar unidades');
+        return
+      }
+      setBusinessUnits(response.locations);
+      return
+    }
+    if (!data.showAlways) {
+      const response = await fetchBusinessUnits();
+      if (response.success !== true) {
+        alert('Erro ao buscar unidades');
+        return
+      }
+      response.locations.filter((unit) => {
+        unit.schedules.filter((schedule) => {
+          if (schedule.weekdays === data.period) {
+            return unit
+          }
+        })
+      })
+    }
   };
 
   return (
@@ -48,7 +81,7 @@ export function Home() {
         <p className="font-poppins text-lg my-8">O horário de funcionamento das nossas unidades está seguindo os decretos de cada município. Por isso
           confira aqui se a sua unidade está aberta e as medidas de segurança que estamos seguindo.
         </p>
-        <ChosePeriodCard onSubmit={fetchBusinessUnits} />
+        <ChosePeriodCard onSubmit={getResponse} totalResults={businessUnits.length} />
         <Infos />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {businessUnits &&

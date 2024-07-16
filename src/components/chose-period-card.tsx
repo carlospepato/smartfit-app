@@ -1,21 +1,27 @@
 import { Clock9 } from "lucide-react";
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-interface DataProps{
+interface DataProps {
   period: string;
   showAlways: boolean;
 }
 
 interface ChosePeriodCardProps {
   onSubmit: (data: DataProps) => void;
+  totalResults?: number;
 }
 
-export function ChosePeriodCard({ onSubmit } : ChosePeriodCardProps) {
+export function ChosePeriodCard({ onSubmit, totalResults }: ChosePeriodCardProps) {
   const { register, handleSubmit, reset } = useForm<DataProps>();
 
   const handleFormSubmit: SubmitHandler<DataProps> = (data) => {
     onSubmit(data);
   };
+
+  function clearAll() {
+    reset();
+    onSubmit({ period: '', showAlways: false });
+  }
 
   return (
     <div className="w-full bg-zinc-50 shadow-sm border border-zinc-200 rounded-md">
@@ -58,14 +64,14 @@ export function ChosePeriodCard({ onSubmit } : ChosePeriodCardProps) {
             <label htmlFor="showAlways" className="font-poppins">Exibir unidades fechadas</label>
           </div>
           <div className="flex items-center gap-2">
-            <p className="font-poppins">Resultados encontrados:</p><span className="font-poppins font-medium">0</span>
+            <p className="font-poppins">Resultados encontrados:</p><span className="font-poppins font-medium">{totalResults}</span>
           </div>
         </div>
         <div className="flex items-center justify-center gap-4 flex-col md:flex-row">
           <button className="bg-amber-500 rounded-md w-72 py-2.5 font-semibold hover:bg-amber-400" type="submit">
             Encontrar unidade
           </button>
-          <button className="border border-zinc-400 rounded-md w-72 py-2.5 font-semibold hover:bg-zinc-300" type="button" onClick={() => reset()}>
+          <button className="border border-zinc-400 rounded-md w-72 py-2.5 font-semibold hover:bg-zinc-300" type="button" onClick={() => clearAll()}>
             Limpar
           </button>
         </div>
