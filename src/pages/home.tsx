@@ -82,7 +82,9 @@ export function Home() {
           confira aqui se a sua unidade está aberta e as medidas de segurança que estamos seguindo.
         </p>
         <ChosePeriodCard onSubmit={getResponse} totalResults={businessUnits.length} />
-        <Infos />
+        {businessUnits.length != 0 &&
+          <Infos />
+        }
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {businessUnits &&
             businessUnits.map((unit: InfoCardProps, index) => (
